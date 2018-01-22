@@ -2,29 +2,14 @@ extern crate gio;
 extern crate gtk;
 extern crate sourceview;
 
+#[macro_use]
+mod utils;
+
 use gio::prelude::*;
 use gtk::prelude::*;
 use sourceview::{Buffer, LanguageManager, LanguageManagerExt, StyleSchemeManager, StyleSchemeManagerExt, BufferExt, View};
 
 use std::env::args;
-
-// make moving clones into closures more convenient
-macro_rules! clone {
-    (@param _) => ( _ );
-    (@param $x:ident) => ( $x );
-    ($($n:ident),+ => move || $body:expr) => (
-        {
-            $( let $n = $n.clone(); )+
-            move || $body
-        }
-    );
-    ($($n:ident),+ => move |$($p:tt),+| $body:expr) => (
-        {
-            $( let $n = $n.clone(); )+
-            move |$(clone!(@param $p),)+| $body
-        }
-    );
-}
 
 pub fn configure_sourceview(buff: &Buffer, language: &str) {
     LanguageManager::new()
