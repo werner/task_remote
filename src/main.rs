@@ -40,7 +40,7 @@ pub fn configure_sourceview(buff: &Buffer) {
 fn build_ui(application: &gtk::Application) {
     let window = gtk::ApplicationWindow::new(application);
 
-    window.set_title("First GTK+ Program");
+    window.set_title("Task Remote");
     window.set_border_width(10);
     window.set_position(gtk::WindowPosition::Center);
     window.set_default_size(350, 70);
@@ -58,7 +58,7 @@ fn build_ui(application: &gtk::Application) {
     let view = View::new_with_buffer(&buffer);
     hbox.pack_start(&view, false, false, 5);
 
-    let button = gtk::Button::new_with_label("Click me!");
+    let button = gtk::Button::new_with_label("Choose language");
     hbox.pack_start(&button, false, false, 5);
 
     window.add(&hbox);
@@ -67,7 +67,7 @@ fn build_ui(application: &gtk::Application) {
 }
 
 fn main() {
-    let application = gtk::Application::new("task_remote",
+    let application = gtk::Application::new("com.task_remote",
                                             gio::ApplicationFlags::empty())
                                        .expect("Initialization failed...");
 
