@@ -26,9 +26,9 @@ macro_rules! clone {
     );
 }
 
-pub fn configure_sourceview(buff: &Buffer) {
+pub fn configure_sourceview(buff: &Buffer, language: &str) {
     LanguageManager::new()
-        .get_language("ruby")
+        .get_language(language)
         .map(|markdown| buff.set_language(&markdown));
 
     let manager = StyleSchemeManager::new();
@@ -63,7 +63,6 @@ fn build_ui(application: &gtk::Application) {
     vbox_scripts.pack_start(&pre_hook, false, false, 5);
 
     let buffer = sourceview::Buffer::new(None);
-    configure_sourceview(&buffer);
 
     let view = View::new_with_buffer(&buffer);
     vbox_scripts.pack_start(&view, true, true, 5);
@@ -89,6 +88,12 @@ fn build_ui(application: &gtk::Application) {
     let cell = gtk::CellRendererText::new();
     language_chooser.pack_start(&cell, true);
     language_chooser.add_attribute(&cell, "text", 1);
+
+    language_chooser.connect_changed(move |combo| {
+        if let Some(id) = combo.get_active_id() {
+            configure_sourceview(&buffer, &id);
+        }
+    });
 
     vbox_options.pack_start(&language_chooser, false, false, 5);
 
