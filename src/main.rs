@@ -5,28 +5,16 @@ extern crate sourceview;
 #[macro_use]
 mod utils;
 
+mod language_chooser;
+mod source_view;
+
+use language_chooser::{LanguageChooser};
+use source_view::{SourceView};
 use gio::prelude::*;
 use gtk::prelude::*;
-use sourceview::{Buffer, LanguageManager, LanguageManagerExt, StyleSchemeManager, StyleSchemeManagerExt, BufferExt, View};
+use sourceview::{View};
 
 use std::env::args;
-
-pub fn configure_sourceview(buff: &Buffer, language: &str) {
-    LanguageManager::new()
-        .get_language(language)
-        .map(|markdown| buff.set_language(&markdown));
-
-    let manager = StyleSchemeManager::new();
-    manager
-        .get_scheme("classic")
-        .map(|theme| buff.set_style_scheme(&theme));
-}
-
-pub fn add_text_row(store: &gtk::ListStore,
-                    col1: &str, col2: &str) -> gtk::TreeIter {
-    store.insert_with_values(None, &[0, 1],
-                             &[&String::from(col1), &String::from(col2)])
-}
 
 fn build_ui(application: &gtk::Application) {
     let window = gtk::ApplicationWindow::new(application);
@@ -47,9 +35,9 @@ fn build_ui(application: &gtk::Application) {
     let pre_hook = gtk::Entry::new();
     vbox_scripts.pack_start(&pre_hook, false, false, 5);
 
-    let buffer = sourceview::Buffer::new(None);
+    let source_view = SourceView::new();
 
-    let view = View::new_with_buffer(&buffer);
+    let view = View::new_with_buffer(&source_view.buffer);
     vbox_scripts.pack_start(&view, true, true, 5);
 
     let post_hook = gtk::Entry::new();
@@ -59,28 +47,14 @@ fn build_ui(application: &gtk::Application) {
 
     let vbox_options = gtk::Box::new(gtk::Orientation::Vertical, 3);
 
-    let language_chooser = gtk::ComboBox::new();
-    let model_store = gtk::ListStore::new(&[gtk::Type::String, gtk::Type::String]);
+    let language_chooser = LanguageChooser::new();
 
-    language_chooser.set_model(Some(&model_store));
-    language_chooser.set_id_column(0);
-    language_chooser.set_entry_text_column(1);
+    language_chooser.prepare();
+    language_chooser.fill();
 
-    add_text_row(&model_store, "ruby", "Ruby");
-    add_text_row(&model_store, "python", "Python");
-    add_text_row(&model_store, "perl", "Perl");
+    language_chooser.connect_change(source_view);
 
-    let cell = gtk::CellRendererText::new();
-    language_chooser.pack_start(&cell, true);
-    language_chooser.add_attribute(&cell, "text", 1);
-
-    language_chooser.connect_changed(move |combo| {
-        if let Some(id) = combo.get_active_id() {
-            configure_sourceview(&buffer, &id);
-        }
-    });
-
-    vbox_options.pack_start(&language_chooser, false, false, 5);
+    vbox_options.pack_start(&language_chooser.combo, false, false, 5);
 
     hbox.pack_start(&vbox_options, true, true, 1);
 
