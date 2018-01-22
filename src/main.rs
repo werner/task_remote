@@ -4,7 +4,7 @@ extern crate sourceview;
 
 use gio::prelude::*;
 use gtk::prelude::*;
-use sourceview::*;
+use sourceview::{Buffer, LanguageManager, LanguageManagerExt, StyleSchemeManager, StyleSchemeManagerExt, BufferExt, View};
 
 use std::env::args;
 
@@ -26,6 +26,17 @@ macro_rules! clone {
     );
 }
 
+pub fn configure_sourceview(buff: &Buffer) {
+    LanguageManager::new()
+        .get_language("ruby")
+        .map(|markdown| buff.set_language(&markdown));
+
+    let manager = StyleSchemeManager::new();
+    manager
+        .get_scheme("classic")
+        .map(|theme| buff.set_style_scheme(&theme));
+}
+
 fn build_ui(application: &gtk::Application) {
     let window = gtk::ApplicationWindow::new(application);
 
@@ -39,15 +50,24 @@ fn build_ui(application: &gtk::Application) {
         Inhibit(false)
     }));
 
-    let button = gtk::Button::new_with_label("Click me!");
+    let hbox = gtk::Box::new(gtk::Orientation::Vertical, 2);
 
-    window.add(&button);
+    let buffer = sourceview::Buffer::new(None);
+    configure_sourceview(&buffer);
+
+    let view = View::new_with_buffer(&buffer);
+    hbox.pack_start(&view, false, false, 5);
+
+    let button = gtk::Button::new_with_label("Click me!");
+    hbox.pack_start(&button, false, false, 5);
+
+    window.add(&hbox);
 
     window.show_all();
 }
 
 fn main() {
-    let application = gtk::Application::new("com.github.basic",
+    let application = gtk::Application::new("task_remote",
                                             gio::ApplicationFlags::empty())
                                        .expect("Initialization failed...");
 
