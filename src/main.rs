@@ -43,20 +43,26 @@ fn build_ui(application: &gtk::Application) {
     window.set_title("Task Remote");
     window.set_border_width(10);
     window.set_position(gtk::WindowPosition::Center);
-    window.set_default_size(350, 70);
+    window.set_default_size(800, 600);
 
     window.connect_delete_event(clone!(window => move |_, _| {
         window.destroy();
         Inhibit(false)
     }));
 
-    let hbox = gtk::Box::new(gtk::Orientation::Vertical, 2);
+    let hbox = gtk::Box::new(gtk::Orientation::Vertical, 4);
+
+    let pre_hook = gtk::Entry::new();
+    hbox.pack_start(&pre_hook, false, false, 5);
 
     let buffer = sourceview::Buffer::new(None);
     configure_sourceview(&buffer);
 
     let view = View::new_with_buffer(&buffer);
-    hbox.pack_start(&view, false, false, 5);
+    hbox.pack_start(&view, true, true, 5);
+
+    let post_hook = gtk::Entry::new();
+    hbox.pack_start(&post_hook, false, false, 5);
 
     let button = gtk::Button::new_with_label("Choose language");
     hbox.pack_start(&button, false, false, 5);
