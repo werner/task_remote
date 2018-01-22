@@ -1,0 +1,10 @@
+[package]
+name = "task_remote"
+version = "0.1.0"
+authors = ["Werner Echezuria <werner_a_e@yahoo.es>"]
+
+[dependencies]
+gtk = "0.3.0"
+gio = "0.3.0"
+sourceview = "0.3.0"
+webkit2gtk = "0.3.0"
