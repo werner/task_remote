@@ -37,6 +37,12 @@ pub fn configure_sourceview(buff: &Buffer) {
         .map(|theme| buff.set_style_scheme(&theme));
 }
 
+pub fn add_text_row(store: &gtk::ListStore,
+                    col1: &str, col2: &str) -> gtk::TreeIter {
+    store.insert_with_values(None, &[0, 1],
+                             &[&String::from(col1), &String::from(col2)])
+}
+
 fn build_ui(application: &gtk::Application) {
     let window = gtk::ApplicationWindow::new(application);
 
@@ -50,22 +56,43 @@ fn build_ui(application: &gtk::Application) {
         Inhibit(false)
     }));
 
-    let hbox = gtk::Box::new(gtk::Orientation::Vertical, 4);
+    let hbox = gtk::Box::new(gtk::Orientation::Horizontal, 2);
+    let vbox_scripts = gtk::Box::new(gtk::Orientation::Vertical, 3);
 
     let pre_hook = gtk::Entry::new();
-    hbox.pack_start(&pre_hook, false, false, 5);
+    vbox_scripts.pack_start(&pre_hook, false, false, 5);
 
     let buffer = sourceview::Buffer::new(None);
     configure_sourceview(&buffer);
 
     let view = View::new_with_buffer(&buffer);
-    hbox.pack_start(&view, true, true, 5);
+    vbox_scripts.pack_start(&view, true, true, 5);
 
     let post_hook = gtk::Entry::new();
-    hbox.pack_start(&post_hook, false, false, 5);
+    vbox_scripts.pack_start(&post_hook, false, false, 5);
 
-    let button = gtk::Button::new_with_label("Choose language");
-    hbox.pack_start(&button, false, false, 5);
+    hbox.pack_start(&vbox_scripts, true, true, 1);
+
+    let vbox_options = gtk::Box::new(gtk::Orientation::Vertical, 3);
+
+    let language_chooser = gtk::ComboBox::new();
+    let model_store = gtk::ListStore::new(&[gtk::Type::String, gtk::Type::String]);
+
+    language_chooser.set_model(Some(&model_store));
+    language_chooser.set_id_column(0);
+    language_chooser.set_entry_text_column(1);
+
+    add_text_row(&model_store, "ruby", "Ruby");
+    add_text_row(&model_store, "python", "Python");
+    add_text_row(&model_store, "perl", "Perl");
+
+    let cell = gtk::CellRendererText::new();
+    language_chooser.pack_start(&cell, true);
+    language_chooser.add_attribute(&cell, "text", 1);
+
+    vbox_options.pack_start(&language_chooser, false, false, 5);
+
+    hbox.pack_start(&vbox_options, true, true, 1);
 
     window.add(&hbox);
 
