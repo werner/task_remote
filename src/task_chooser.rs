@@ -28,7 +28,9 @@ impl TaskChooser {
         self.chooser.add_text_row(&self.chooser.model_store, "null", "Choose a Task");
         let results = tasks.load::<Task>(&connection).expect("Error loading tasks");
         for task in results {
-            self.chooser.add_text_row(&self.chooser.model_store, &task.id.to_string(), &task.title);
+            self.chooser.add_text_row(&self.chooser.model_store,
+                                      &task.id.to_string(),
+                                      &task.title);
         }
         self.chooser.combo.set_active(0);
     }

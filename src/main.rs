@@ -22,6 +22,9 @@ use source_view::{SourceView};
 use gio::prelude::*;
 use gtk::prelude::*;
 use sourceview::{View, ViewExt};
+use models::*;
+use diesel::prelude::*;
+use db_connection::*;
 
 use std::env::args;
 
@@ -81,6 +84,17 @@ fn build_ui(application: &gtk::Application) {
     vbox_options.pack_start(&language_chooser.chooser.combo, false, false, 5);
 
     let save_button: gtk::Button = gtk::Button::new_with_label("Save");
+    save_button.connect_clicked(move |_| {
+        let connection: SqliteConnection = establish_connection();
+        let task = MutTask::new(title.get_text().unwrap_or(String::new()),
+                                pre_hook.get_text(),
+                                view.get_buffer().unwrap().get_text(&view.get_buffer().unwrap().get_start_iter(),
+                                                                    &view.get_buffer().unwrap().get_end_iter(),
+                                                                    true).unwrap_or(String::new()),
+                                post_hook.get_text(),
+                                language_chooser.chooser.combo.get_active_id());
+        task.create(&connection);
+    });
     vbox_options.pack_start(&save_button, false, false, 5);
 
     hbox.pack_start(&vbox_options, true, true, 1);
