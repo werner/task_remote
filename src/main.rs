@@ -6,9 +6,12 @@ extern crate sourceview;
 mod utils;
 
 mod language_chooser;
+mod task_chooser;
 mod source_view;
+mod chooser;
 
 use language_chooser::{LanguageChooser};
+use task_chooser::{TaskChooser};
 use source_view::{SourceView};
 use gio::prelude::*;
 use gtk::prelude::*;
@@ -30,7 +33,12 @@ fn build_ui(application: &gtk::Application) {
     }));
 
     let hbox = gtk::Box::new(gtk::Orientation::Horizontal, 2);
-    let vbox_scripts = gtk::Box::new(gtk::Orientation::Vertical, 4);
+    let vbox_scripts = gtk::Box::new(gtk::Orientation::Vertical, 5);
+
+    let task_chooser: TaskChooser = TaskChooser::new();
+
+    task_chooser.chooser.prepare();
+    vbox_scripts.pack_start(&task_chooser.chooser.combo, false, false, 5);
 
     let title = gtk::Entry::new();
     title.set_placeholder_text("Title");
@@ -40,7 +48,7 @@ fn build_ui(application: &gtk::Application) {
     pre_hook.set_placeholder_text("Pre hook");
     vbox_scripts.pack_start(&pre_hook, false, false, 5);
 
-    let source_view = SourceView::new();
+    let source_view: SourceView = SourceView::new();
 
     let view = View::new_with_buffer(&source_view.buffer);
     view.has_focus();
@@ -57,14 +65,14 @@ fn build_ui(application: &gtk::Application) {
 
     let vbox_options = gtk::Box::new(gtk::Orientation::Vertical, 3);
 
-    let language_chooser = LanguageChooser::new();
+    let language_chooser: LanguageChooser = LanguageChooser::new();
 
-    language_chooser.prepare();
+    language_chooser.chooser.prepare();
     language_chooser.fill();
 
     language_chooser.connect_change(source_view);
 
-    vbox_options.pack_start(&language_chooser.combo, false, false, 5);
+    vbox_options.pack_start(&language_chooser.chooser.combo, false, false, 5);
 
     hbox.pack_start(&vbox_options, true, true, 1);
 
