@@ -11,7 +11,7 @@ pub struct Task {
     pub language: Option<String>,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Clone)]
 #[table_name="tasks"]
 pub struct MutTask {
     pub title: String,
