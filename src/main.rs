@@ -71,24 +71,27 @@ fn build_ui(application: &Application) {
 
     let vbox_options = Box::new(Orientation::Vertical, 4);
 
-    let task = form.load(view);
     form.language_chooser.chooser.prepare();
     form.language_chooser.fill();
-    form.language_chooser.connect_change(form.source_view);
 
     vbox_options.pack_start(&form.language_chooser.chooser.combo, false, false, 5);
 
+    form.language_chooser.connect_change(&form);
+
     let save_button: Button = Button::new_with_label("Save");
-    save_button.connect_clicked(move |_| {
+    save_button.connect_clicked(clone!(form => move |_| {
+        let task = form.load(&view);
         let connection: SqliteConnection = establish_connection();
         task.create(&connection);
-    });
+    }));
+
     vbox_options.pack_start(&save_button, false, false, 5);
 
     hbox.pack_start(&vbox_options, true, true, 1);
 
     window.add(&hbox);
 
+    task_chooser.connect_change(form);
     window.show_all();
 }
 

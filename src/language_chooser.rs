@@ -1,8 +1,9 @@
 use gtk::*;
-use source_view::*;
 
 use chooser::{Chooser};
+use form::{Form};
 
+#[derive(Clone)]
 pub struct LanguageChooser {
     pub chooser: Chooser
 }
@@ -26,12 +27,12 @@ impl LanguageChooser {
         self.chooser.combo.set_active(0);
     }
 
-    pub fn connect_change(&self, source_view: SourceView) {
-        self.chooser.combo.connect_changed(move |combo| {
+    pub fn connect_change(&self, form: &Form) {
+        self.chooser.combo.connect_changed(clone!(form => move |combo| {
             if let Some(id) = combo.get_active_id() {
-                source_view.configure_sourceview(&id);
+                form.source_view.configure_sourceview(&id);
             }
-        });
+        }));
     }
 
 }

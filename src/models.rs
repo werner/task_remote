@@ -1,7 +1,7 @@
 use diesel::*;
 use schema::tasks;
 
-#[derive(Queryable)]
+#[derive(Queryable, Clone)]
 pub struct Task {
     pub id: i32,
     pub title: String,
@@ -37,5 +37,9 @@ impl MutTask {
             .values(self)
             .execute(conn)
             .expect("Error saving new post")
+    }
+
+    pub fn find(conn: &SqliteConnection, id: i32) -> Task {
+        tasks::table.find(id).first::<Task>(conn).expect("Not found")
     }
 }

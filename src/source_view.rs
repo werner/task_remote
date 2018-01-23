@@ -1,5 +1,6 @@
 use sourceview::{Buffer, LanguageManager, LanguageManagerExt, StyleSchemeManager, StyleSchemeManagerExt, BufferExt};
 
+#[derive(Clone)]
 pub struct SourceView {
   pub buffer: Buffer
 }

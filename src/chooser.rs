@@ -1,5 +1,6 @@
 use gtk::*;
 
+#[derive(Clone)]
 pub struct Chooser {
     pub combo: ComboBox,
     pub model_store: ListStore
