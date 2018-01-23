@@ -19,9 +19,11 @@ impl LanguageChooser {
     }
 
     pub fn fill(&self) {
+        self.chooser.add_text_row(&self.chooser.model_store, "null", "Choose a Language");
         self.chooser.add_text_row(&self.chooser.model_store, "ruby", "Ruby");
         self.chooser.add_text_row(&self.chooser.model_store, "python", "Python");
         self.chooser.add_text_row(&self.chooser.model_store, "perl", "Perl");
+        self.chooser.combo.set_active(0);
     }
 
     pub fn connect_change(&self, source_view: SourceView) {

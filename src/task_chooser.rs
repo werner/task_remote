@@ -16,4 +16,9 @@ impl TaskChooser {
             }
         }
     }
+
+    pub fn fill(&self) {
+        self.chooser.add_text_row(&self.chooser.model_store, "null", "Choose a Task");
+        self.chooser.combo.set_active(0);
+    }
 }

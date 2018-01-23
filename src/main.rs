@@ -38,6 +38,7 @@ fn build_ui(application: &gtk::Application) {
     let task_chooser: TaskChooser = TaskChooser::new();
 
     task_chooser.chooser.prepare();
+    task_chooser.fill();
     vbox_scripts.pack_start(&task_chooser.chooser.combo, false, false, 5);
 
     let title = gtk::Entry::new();
@@ -63,16 +64,18 @@ fn build_ui(application: &gtk::Application) {
 
     hbox.pack_start(&vbox_scripts, true, true, 1);
 
-    let vbox_options = gtk::Box::new(gtk::Orientation::Vertical, 3);
+    let vbox_options = gtk::Box::new(gtk::Orientation::Vertical, 4);
 
     let language_chooser: LanguageChooser = LanguageChooser::new();
 
     language_chooser.chooser.prepare();
     language_chooser.fill();
-
     language_chooser.connect_change(source_view);
 
     vbox_options.pack_start(&language_chooser.chooser.combo, false, false, 5);
+
+    let save_button: gtk::Button = gtk::Button::new_with_label("Save");
+    vbox_options.pack_start(&save_button, false, false, 5);
 
     hbox.pack_start(&vbox_options, true, true, 1);
 
