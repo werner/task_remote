@@ -1,6 +1,9 @@
 extern crate gio;
 extern crate gtk;
 extern crate sourceview;
+#[macro_use]
+extern crate diesel;
+extern crate dotenv;
 
 #[macro_use]
 mod utils;
@@ -9,6 +12,9 @@ mod language_chooser;
 mod task_chooser;
 mod source_view;
 mod chooser;
+mod models;
+mod schema;
+mod db_connection;
 
 use language_chooser::{LanguageChooser};
 use task_chooser::{TaskChooser};
