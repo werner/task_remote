@@ -10,30 +10,42 @@ use form::{Form};
 
 pub struct ServerChooser {
     pub chooser: Chooser,
-    pub add_server_btn: Button,
-    pub dialog: Dialog
+    pub add_server_btn: Button
 }
 
 impl ServerChooser {
 
-    pub fn new(window: &ApplicationWindow) -> ServerChooser {
+    pub fn new() -> ServerChooser {
         ServerChooser {
             chooser:
               Chooser {
                   combo: ComboBox::new(),
                   model_store: ListStore::new(&[Type::I32, Type::String]),
               },
-            add_server_btn: Button::new_with_label("+"),
-            dialog: Dialog::new_with_buttons(Some("Add a Server"), Some(window), DialogFlags::empty(), &[("Ok", 1), ("Cancel", 2)])
+            add_server_btn: Button::new_with_label("+")
         }
     }
 
-    pub fn widget(&self) -> Box {
+    pub fn widget(&self, window: &ApplicationWindow) -> Box {
       let hbox = Box::new(Orientation::Horizontal, 2);
-      let inner_dialog = self.dialog.clone();
-      self.add_server_btn.connect_clicked(move |_| {
-        inner_dialog.run();
-      });
+
+      self.add_server_btn.connect_clicked(clone!(window => move |_| {
+        let dialog = Dialog::new_with_buttons(Some("Add a Server"), Some(&window), DialogFlags::empty(), &[("Ok", 1), ("Cancel", 2)]);
+        let content = dialog.get_content_area();
+
+        let entry_user = Entry::new();
+        let label_user = Label::new_with_mnemonic(Some("User:"));
+        label_user.set_mnemonic_widget(Some(&entry_user));
+
+        let vbox_user = Box::new(Orientation::Horizontal, 2);
+        vbox_user.pack_start(&label_user, false, false, 1);
+        vbox_user.pack_start(&entry_user, true, true, 1);
+        content.add(&vbox_user);
+
+        dialog.show_all();
+        dialog.run();
+        dialog.destroy();
+      }));
       hbox.pack_start(&self.chooser.combo, true, true, 1);
       hbox.pack_start(&self.add_server_btn, false, false, 1);
       hbox
