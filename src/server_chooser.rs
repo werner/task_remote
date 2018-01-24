@@ -30,6 +30,10 @@ impl ServerChooser {
 
     pub fn widget(&self) -> Box {
       let hbox = Box::new(Orientation::Horizontal, 2);
+      let inner_dialog = self.dialog.clone();
+      self.add_server_btn.connect_clicked(move |_| {
+        inner_dialog.run();
+      });
       hbox.pack_start(&self.chooser.combo, true, true, 1);
       hbox.pack_start(&self.add_server_btn, false, false, 1);
       hbox
