@@ -30,17 +30,24 @@ impl ServerChooser {
       let hbox = Box::new(Orientation::Horizontal, 2);
 
       self.add_server_btn.connect_clicked(clone!(window => move |_| {
-        let dialog = Dialog::new_with_buttons(Some("Add a Server"), Some(&window), DialogFlags::empty(), &[("Ok", 1), ("Cancel", 2)]);
+        let dialog = Dialog::new_with_buttons(Some("Add a Server"), Some(&window), DialogFlags::empty(), &[("Save", 1), ("Cancel", 2)]);
         let content = dialog.get_content_area();
 
         let entry_user = Entry::new();
         let label_user = Label::new_with_mnemonic(Some("User:"));
         label_user.set_mnemonic_widget(Some(&entry_user));
 
-        let vbox_user = Box::new(Orientation::Horizontal, 2);
-        vbox_user.pack_start(&label_user, false, false, 1);
-        vbox_user.pack_start(&entry_user, true, true, 1);
-        content.add(&vbox_user);
+        label_user.set_halign(Align::Start);
+        content.pack_start(&label_user, false, false, 1);
+        content.pack_start(&entry_user, false, false, 1);
+
+        let entry_server_name = Entry::new();
+        let label_server_name = Label::new_with_mnemonic(Some("Server Name:"));
+        label_server_name.set_mnemonic_widget(Some(&entry_server_name));
+
+        label_server_name.set_halign(Align::Start);
+        content.pack_start(&label_server_name, false, false, 1);
+        content.pack_start(&entry_server_name, false, false, 1);
 
         dialog.show_all();
         dialog.run();
