@@ -2,6 +2,7 @@ table! {
     languages (id) {
         id -> Integer,
         name -> Text,
+        value -> Text,
     }
 }
 

@@ -26,16 +26,13 @@ impl LanguageChooser {
     pub fn fill(&self) {
         let connection: SqliteConnection = establish_connection();
 
-        self.chooser.add_db_row(&self.chooser.model_store, 0, "Choose a Language");
+        self.chooser.add_text_row(&self.chooser.model_store, "null", "Choose a Language");
         let results = languages.load::<Language>(&connection).expect("Error loading tasks");
         for language in results {
-            self.chooser.add_db_row(&self.chooser.model_store,
-                                      language.id,
+            self.chooser.add_text_row(&self.chooser.model_store,
+                                      &language.value,
                                       &language.name);
         }
-        self.chooser.add_text_row(&self.chooser.model_store, "ruby", "Ruby");
-        self.chooser.add_text_row(&self.chooser.model_store, "python", "Python");
-        self.chooser.add_text_row(&self.chooser.model_store, "perl", "Perl");
         self.chooser.combo.set_active(0);
     }
 
