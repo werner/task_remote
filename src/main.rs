@@ -96,6 +96,10 @@ fn build_ui(application: &Application) {
     server_pack.fill();
     vbox_options.pack_start(&server_pack.widget(&window), false, false, 5);
 
+
+    let run_button: Button = Button::new_with_label("Execute");
+    vbox_options.pack_start(&run_button, false, false, 5);
+
     hbox.pack_start(&vbox_options, true, true, 1);
 
     window.add(&hbox);
