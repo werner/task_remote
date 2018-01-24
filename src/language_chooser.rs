@@ -2,6 +2,10 @@ use gtk::*;
 
 use chooser::{Chooser};
 use form::{Form};
+use db_connection::*;
+use models::*;
+use schema::languages::dsl::*;
+use diesel::prelude::*;
 
 #[derive(Clone)]
 pub struct LanguageChooser {
@@ -20,7 +24,15 @@ impl LanguageChooser {
     }
 
     pub fn fill(&self) {
-        self.chooser.add_text_row(&self.chooser.model_store, "null", "Choose a Language");
+        let connection: SqliteConnection = establish_connection();
+
+        self.chooser.add_db_row(&self.chooser.model_store, 0, "Choose a Language");
+        let results = languages.load::<Language>(&connection).expect("Error loading tasks");
+        for language in results {
+            self.chooser.add_db_row(&self.chooser.model_store,
+                                      language.id,
+                                      &language.name);
+        }
         self.chooser.add_text_row(&self.chooser.model_store, "ruby", "Ruby");
         self.chooser.add_text_row(&self.chooser.model_store, "python", "Python");
         self.chooser.add_text_row(&self.chooser.model_store, "perl", "Perl");
@@ -29,8 +41,8 @@ impl LanguageChooser {
 
     pub fn connect_change(&self, form: &Form) {
         self.chooser.combo.connect_changed(clone!(form => move |combo| {
-            if let Some(id) = combo.get_active_id() {
-                form.source_view.configure_sourceview(&id);
+            if let Some(id_db) = combo.get_active_id() {
+                form.source_view.configure_sourceview(&id_db);
             }
         }));
     }

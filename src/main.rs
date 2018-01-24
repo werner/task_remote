@@ -41,7 +41,7 @@ fn build_ui(application: &Application) {
     }));
 
     let hbox = Box::new(Orientation::Horizontal, 2);
-    let vbox_scripts = Box::new(Orientation::Vertical, 5);
+    let vbox_scripts = Box::new(Orientation::Vertical, 6);
 
     let task_chooser: TaskChooser = TaskChooser::new();
 
@@ -54,8 +54,8 @@ fn build_ui(application: &Application) {
     form.title.set_placeholder_text("Title");
     vbox_scripts.pack_start(&form.title, false, false, 5);
 
-    form.pre_hook.set_placeholder_text("Pre hook");
-    vbox_scripts.pack_start(&form.pre_hook, false, false, 5);
+    form.command.set_placeholder_text("Command");
+    vbox_scripts.pack_start(&form.command, false, false, 5);
 
     let view = View::new_with_buffer(&form.source_view.buffer);
     view.has_focus();
@@ -64,8 +64,10 @@ fn build_ui(application: &Application) {
     view.set_auto_indent(true);
     vbox_scripts.pack_start(&view, true, true, 5);
 
-    form.post_hook.set_placeholder_text("Post hook");
-    vbox_scripts.pack_start(&form.post_hook, false, false, 5);
+    let label = Label::new_with_mnemonic(Some("Output"));
+    label.set_mnemonic_widget(Some(&form.output));
+    vbox_scripts.pack_start(&label, false, false, 1);
+    vbox_scripts.pack_start(&form.output, true, true, 1);
 
     hbox.pack_start(&vbox_scripts, true, true, 1);
 

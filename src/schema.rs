@@ -1,10 +1,22 @@
 table! {
+    languages (id) {
+        id -> Integer,
+        name -> Text,
+    }
+}
+
+table! {
     tasks (id) {
         id -> Integer,
         title -> Text,
-        pre_hook -> Nullable<Text>,
+        command -> Nullable<Text>,
         code -> Text,
-        post_hook -> Nullable<Text>,
+        output -> Nullable<Text>,
         language -> Nullable<Text>,
     }
 }
+
+allow_tables_to_appear_in_same_query!(
+    languages,
+    tasks,
+);

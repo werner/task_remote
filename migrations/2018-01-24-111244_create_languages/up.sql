@@ -1,0 +1,4 @@
+CREATE TABLE languages (
+  id INTEGER PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL
+);

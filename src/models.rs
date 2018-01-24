@@ -5,9 +5,9 @@ use schema::tasks;
 pub struct Task {
     pub id: i32,
     pub title: String,
-    pub pre_hook: Option<String>,
+    pub command: Option<String>,
     pub code: String,
-    pub post_hook: Option<String>,
+    pub output: Option<String>,
     pub language: Option<String>,
 }
 
@@ -15,19 +15,19 @@ pub struct Task {
 #[table_name="tasks"]
 pub struct MutTask {
     pub title: String,
-    pub pre_hook: Option<String>,
+    pub command: Option<String>,
     pub code: String,
-    pub post_hook: Option<String>,
+    pub output: Option<String>,
     pub language: Option<String>,
 }
 
 impl MutTask {
-    pub fn new(title: String, pre_hook: Option<String>, code: String, post_hook: Option<String>, language: Option<String>) -> MutTask {
+    pub fn new(title: String, command: Option<String>, code: String, output: Option<String>, language: Option<String>) -> MutTask {
         MutTask {
             title: title,
-            pre_hook: pre_hook,
+            command: command,
             code: code,
-            post_hook: post_hook,
+            output: output,
             language: language
         }
     }
@@ -42,4 +42,10 @@ impl MutTask {
     pub fn find(conn: &SqliteConnection, id: i32) -> Task {
         tasks::table.find(id).first::<Task>(conn).expect("Not found")
     }
+}
+
+#[derive(Queryable, Clone)]
+pub struct Language {
+    pub id: i32,
+    pub name: String,
 }

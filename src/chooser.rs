@@ -20,4 +20,8 @@ impl Chooser {
     pub fn add_text_row(&self, store: &ListStore, col1: &str, col2: &str) -> TreeIter {
         store.insert_with_values(None, &[0, 1], &[&String::from(col1), &String::from(col2)])
     }
+
+    pub fn add_db_row(&self, store: &ListStore, id: i32, text: &str) -> TreeIter {
+        store.insert_with_values(None, &[0, 1], &[&id, &String::from(text)])
+    }
 }
