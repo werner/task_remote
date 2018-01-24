@@ -49,8 +49,17 @@ impl ServerChooser {
         content.pack_start(&label_server_name, false, false, 1);
         content.pack_start(&entry_server_name, false, false, 1);
 
-        dialog.show_all();
-        dialog.run();
+        let response = {
+          dialog.show_all();
+          dialog.run()
+        };
+
+        if let 1 = response {
+          let connection: SqliteConnection = establish_connection();
+          let server = MutServer::new(entry_user.get_text().unwrap_or(String::new()), entry_server_name.get_text().unwrap_or(String::new()));
+          server.create(&connection);
+        }
+
         dialog.destroy();
       }));
       hbox.pack_start(&self.chooser.combo, true, true, 1);

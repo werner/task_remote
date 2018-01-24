@@ -76,11 +76,13 @@ impl MutServer {
         }
     }
 
-    pub fn create(&self, conn: &SqliteConnection) -> usize {
-        insert_into(servers::table)
-            .values(self)
-            .execute(conn)
-            .expect("Error saving new server")
+    pub fn create(&self, conn: &SqliteConnection) {
+        match insert_into(servers::table)
+                  .values(self)
+                  .execute(conn) {
+                    Ok(result) => println!("{}", result),
+                    Err(error) => println!("{}", error)
+                  }
     }
 
     pub fn find(conn: &SqliteConnection, id: i32) -> Server {

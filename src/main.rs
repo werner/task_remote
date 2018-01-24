@@ -92,6 +92,7 @@ fn build_ui(application: &Application) {
     vbox_options.pack_start(&save_button, false, false, 5);
 
     let server_pack: ServerChooser = ServerChooser::new();
+    server_pack.fill();
     vbox_options.pack_start(&server_pack.widget(&window), false, false, 5);
 
     hbox.pack_start(&vbox_options, true, true, 1);
