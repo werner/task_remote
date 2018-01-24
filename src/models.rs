@@ -33,11 +33,14 @@ impl MutTask {
         }
     }
 
-    pub fn create(&self, conn: &SqliteConnection) -> usize {
-        insert_into(tasks::table)
+    pub fn create(&self, conn: &SqliteConnection) {
+        if let Ok(result) = insert_into(tasks::table)
             .values(self)
-            .execute(conn)
-            .expect("Error saving new task")
+            .execute(conn) {
+                println!("{}", result)
+            } else {
+                println!("Error saving task")
+            }
     }
 
     pub fn find(conn: &SqliteConnection, id: i32) -> Task {
