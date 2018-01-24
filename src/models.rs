@@ -1,5 +1,6 @@
 use diesel::*;
 use schema::tasks;
+use schema::servers;
 
 #[derive(Queryable, Clone)]
 pub struct Task {
@@ -36,7 +37,7 @@ impl MutTask {
         insert_into(tasks::table)
             .values(self)
             .execute(conn)
-            .expect("Error saving new post")
+            .expect("Error saving new task")
     }
 
     pub fn find(conn: &SqliteConnection, id: i32) -> Task {
@@ -49,4 +50,38 @@ pub struct Language {
     pub id: i32,
     pub name: String,
     pub value: String
+}
+
+#[derive(Queryable, Clone)]
+pub struct Server {
+    pub id: i32,
+    pub user: String,
+    pub domain_name: String
+}
+
+#[derive(Insertable, Clone)]
+#[table_name="servers"]
+pub struct MutServer {
+    pub user: String,
+    pub domain_name: String
+}
+
+impl MutServer {
+    pub fn new(user: String, domain_name: String) -> MutServer {
+        MutServer {
+            user: user,
+            domain_name: domain_name
+        }
+    }
+
+    pub fn create(&self, conn: &SqliteConnection) -> usize {
+        insert_into(servers::table)
+            .values(self)
+            .execute(conn)
+            .expect("Error saving new server")
+    }
+
+    pub fn find(conn: &SqliteConnection, id: i32) -> Server {
+        servers::table.find(id).first::<Server>(conn).expect("Not found")
+    }
 }

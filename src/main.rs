@@ -10,6 +10,7 @@ mod utils;
 
 mod language_chooser;
 mod task_chooser;
+mod server_chooser;
 mod source_view;
 mod chooser;
 mod models;
@@ -24,6 +25,7 @@ use sourceview::{View, ViewExt};
 use diesel::prelude::*;
 use db_connection::*;
 use form::*;
+use server_chooser::{ServerChooser};
 
 use std::env::args;
 
@@ -88,6 +90,9 @@ fn build_ui(application: &Application) {
     }));
 
     vbox_options.pack_start(&save_button, false, false, 5);
+
+    let server_pack: ServerChooser = ServerChooser::new(&window);
+    vbox_options.pack_start(&server_pack.widget(), false, false, 5);
 
     hbox.pack_start(&vbox_options, true, true, 1);
 

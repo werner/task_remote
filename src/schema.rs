@@ -7,6 +7,14 @@ table! {
 }
 
 table! {
+    servers (id) {
+        id -> Integer,
+        user -> Text,
+        domain_name -> Text,
+    }
+}
+
+table! {
     tasks (id) {
         id -> Integer,
         title -> Text,
@@ -19,5 +27,6 @@ table! {
 
 allow_tables_to_appear_in_same_query!(
     languages,
+    servers,
     tasks,
 );
