@@ -4,5 +4,6 @@ CREATE TABLE tasks (
   command TEXT,
   code TEXT NOT NULL,
   output TEXT,
-  language TEXT
+  language TEXT,
+  CHECK (title <> "")
 );
