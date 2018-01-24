@@ -4,6 +4,7 @@ extern crate sourceview;
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
+extern crate ssh2;
 
 #[macro_use]
 mod utils;
@@ -17,6 +18,7 @@ mod models;
 mod schema;
 mod db_connection;
 mod form;
+mod ssh;
 
 use task_chooser::{TaskChooser};
 use gio::prelude::*;
@@ -26,6 +28,8 @@ use diesel::prelude::*;
 use db_connection::*;
 use form::*;
 use server_chooser::{ServerChooser};
+use ssh::{Ssh};
+use models::{MutServer};
 
 use std::env::args;
 
@@ -96,8 +100,14 @@ fn build_ui(application: &Application) {
     server_pack.fill();
     vbox_options.pack_start(&server_pack.widget(&window), false, false, 5);
 
-
     let run_button: Button = Button::new_with_label("Execute");
+    run_button.connect_clicked(clone!(form => move |_| {
+        let connection: SqliteConnection = establish_connection();
+        let mut_server = MutServer::find(&connection, server_pack.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap());
+        let mut ssh = Ssh::new();
+        ssh.connect(mut_server.user, &mut_server.domain_name);
+        ssh.execute(&form.command.get_text().unwrap());
+    }));
     vbox_options.pack_start(&run_button, false, false, 5);
 
     hbox.pack_start(&vbox_options, true, true, 1);
