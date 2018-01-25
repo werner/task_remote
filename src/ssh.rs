@@ -22,10 +22,13 @@ impl<'a> Ssh<'a> {
   fn connect(&mut self) -> Result<Session, String> {
     match &self.tcp {
       &Ok(ref tcp) => {
-        let mut sess = Session::new().unwrap();
-        sess.handshake(&tcp).unwrap();
-        sess.userauth_agent(self.user).unwrap();
-        Ok(sess)
+        if let Some(mut sess) = Session::new() {
+          if let Err(error) = sess.handshake(&tcp) { println!("{}", error) };
+          if let Err(error) = sess.userauth_agent(self.user) { println!("{}", error) };
+          Ok(sess)
+        } else {
+          Err(String::from("Error getting session"))
+        }
       }
       &Err(ref error) => Err(error.to_string()),
     }
@@ -51,8 +54,11 @@ impl<'a> Ssh<'a> {
         let file_name = Uuid::new_v4();
         match sess.scp_send(Path::new(&format!("/tmp/{}", file_name)), 0o644, 10, None) {
           Ok(mut remote_file) => {
-            remote_file.write(code.as_bytes()).unwrap();
-            file_name.to_string()
+            if let Ok(_) = remote_file.write(code.as_bytes()) {
+              file_name.to_string()
+            } else {
+              String::from("Error loading file")
+            }
           }
           Err(error) => error.to_string(),
         }
