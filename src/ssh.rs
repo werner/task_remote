@@ -37,14 +37,17 @@ impl<'a> Ssh<'a> {
   pub fn execute(&mut self, command: &str) -> String {
     match self.connect() {
       Ok(sess) => {
-        let mut channel = sess.channel_session().unwrap();
-        channel.exec(command).unwrap();
-        let mut s = String::new();
-        channel.read_to_string(&mut s).unwrap();
-        channel.wait_close().unwrap();
-        format!("{}, exit code: {}", s, channel.exit_status().unwrap())
+        match sess.channel_session() {
+          Ok(mut channel) => {
+            if let Err(error) = channel.exec(command) { println!("{}", error) };
+            let mut s = String::new();
+            if let Err(error) = channel.read_to_string(&mut s) { println!("{}", error) };
+            if let Err(error) = channel.wait_close() { println!("{}", error) };
+            format!("{}, exit code: {}", s, channel.exit_status().unwrap())
+          }, Err(error) => error.to_string()
+        }
       }
-      Err(error) => error,
+      Err(error) => error
     }
   }
 
