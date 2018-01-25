@@ -104,11 +104,14 @@ fn build_ui(application: &Application) {
     let run_button: Button = Button::new_with_label("Execute");
     run_button.connect_clicked(clone!(form => move |_| {
         let connection: SqliteConnection = establish_connection();
-        let mut_server = MutServer::find(&connection, server_pack.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap());
-        let mut ssh = Ssh::new(&mut_server.user, &mut_server.domain_name);
-        let file_name = ssh.upload_code(&form.get_code());
-        let output = ssh.execute(&format!("{} /tmp/{}", &form.command.get_text().unwrap(), file_name));
-        form.set_output(&output);
+        if let Ok(mut_server) = MutServer::find(&connection, server_pack.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap()) {
+            let mut ssh = Ssh::new(&mut_server.user, &mut_server.domain_name);
+            let file_name = ssh.upload_code(&form.get_code());
+            let output = ssh.execute(&format!("{} /tmp/{}", &form.command.get_text().unwrap(), file_name));
+            form.set_output(&output);
+        } else {
+            println!("Server Not Found");
+        }
     }));
     vbox_options.pack_start(&run_button, false, false, 5);
 

@@ -54,14 +54,14 @@ pub struct Language {
     pub value: String
 }
 
-#[derive(Queryable, Clone)]
+#[derive(Queryable, Clone, Debug)]
 pub struct Server {
     pub id: i32,
     pub user: String,
     pub domain_name: String
 }
 
-#[derive(Insertable, Clone)]
+#[derive(Insertable, Clone, Debug)]
 #[table_name="servers"]
 pub struct MutServer {
     pub user: String,
@@ -85,7 +85,7 @@ impl MutServer {
                   }
     }
 
-    pub fn find(conn: &SqliteConnection, id: i32) -> Server {
-        servers::table.find(id).first::<Server>(conn).expect("Not found")
+    pub fn find(conn: &SqliteConnection, id: i32) -> Result<Server, result::Error> {
+        servers::table.find(id).first::<Server>(conn)
     }
 }

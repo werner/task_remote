@@ -19,7 +19,7 @@ impl ServerChooser {
             chooser:
               Chooser {
                   combo: ComboBox::new(),
-                  model_store: ListStore::new(&[Type::I32, Type::String]),
+                  model_store: ListStore::new(&[Type::String, Type::String]),
               },
             add_server_btn: Button::new_with_label("+")
         }
@@ -69,12 +69,12 @@ impl ServerChooser {
     pub fn fill(&self) {
         let connection: SqliteConnection = establish_connection();
 
-        self.chooser.add_db_row(&self.chooser.model_store, 0, "Choose a Server");
+        self.chooser.add_text_row(&self.chooser.model_store, "0", "Choose a Server");
         let results = servers.load::<Server>(&connection).expect("Error loading servers");
         for server in results {
-            self.chooser.add_db_row(&self.chooser.model_store,
-                                    server.id,
-                                    &format!("{}@{}", server.user, server.domain_name));
+            self.chooser.add_text_row(&self.chooser.model_store,
+                                      &server.id.to_string(),
+                                      &format!("{}@{}", server.user, server.domain_name));
         }
         self.chooser.combo.set_active(0);
     }
