@@ -1,3 +1,4 @@
+use std::io::Error;
 use std::io::prelude::*;
 use std::net::TcpStream;
 use std::path::Path;
@@ -7,26 +8,26 @@ use ssh2::Session;
 
 pub struct Ssh<'a> {
   user: &'a str,
-  server: &'a str,
+  tcp: Result<TcpStream, Error>
 }
 
 impl<'a> Ssh<'a> {
   pub fn new(user: &'a str, server: &'a str) -> Ssh<'a> {
     Ssh {
       user: user,
-      server: server,
+      tcp: TcpStream::connect(format!("{}:22", server))
     }
   }
 
   fn connect(&mut self) -> Result<Session, String> {
-    match TcpStream::connect(format!("{}:22", self.server)) {
-      Ok(tcp) => {
+    match &self.tcp {
+      &Ok(ref tcp) => {
         let mut sess = Session::new().unwrap();
         sess.handshake(&tcp).unwrap();
         sess.userauth_agent(self.user).unwrap();
         Ok(sess)
       }
-      Err(error) => Err(error.to_string()),
+      &Err(ref error) => Err(error.to_string()),
     }
   }
 
@@ -61,6 +62,7 @@ impl<'a> Ssh<'a> {
   }
 
   // to debug
+  #[warn(dead_code)]
   fn show_agents(&mut self) {
     let sess = self.connect().unwrap();
     let mut agent = sess.agent().unwrap();
