@@ -6,7 +6,6 @@ use diesel::prelude::*;
 use schema::servers::dsl::*;
 use db_connection::*;
 use models::{MutServer};
-use form::{Form};
 
 pub struct ServerChooser {
     pub chooser: Chooser,
