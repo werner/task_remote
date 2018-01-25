@@ -62,7 +62,7 @@ impl<'a> Ssh<'a> {
   }
 
   // to debug
-  #[warn(dead_code)]
+  #[allow(dead_code)]
   fn show_agents(&mut self) {
     let sess = self.connect().unwrap();
     let mut agent = sess.agent().unwrap();
