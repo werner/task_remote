@@ -64,12 +64,7 @@ fn build_ui(application: &Application) {
     form.command.set_placeholder_text("Command");
     vbox_scripts.pack_start(&form.command, false, false, 5);
 
-    let view = View::new_with_buffer(&form.source_view.buffer);
-    view.has_focus();
-    view.grab_focus();
-    view.set_show_line_numbers(true);
-    view.set_auto_indent(true);
-    vbox_scripts.pack_start(&view, true, true, 5);
+    vbox_scripts.pack_start(&form.get_view_from_sourceview(), true, true, 5);
 
     let label = Label::new_with_mnemonic(Some("Output"));
     label.set_mnemonic_widget(Some(&form.output));
@@ -89,7 +84,7 @@ fn build_ui(application: &Application) {
 
     let save_button: Button = Button::new_with_label("Save");
     save_button.connect_clicked(clone!(form => move |_| {
-        let task = form.load(&view);
+        let task = form.load();
         let connection: SqliteConnection = establish_connection();
         task.create(&connection);
     }));

@@ -1,7 +1,7 @@
 use gtk::*;
 
 use source_view::{SourceView};
-use sourceview::{View};
+use sourceview::{View, ViewExt};
 use language_chooser::{LanguageChooser};
 use models::{Task, MutTask};
 
@@ -30,19 +30,28 @@ impl Form {
     }
   }
 
+  pub fn get_view_from_sourceview(&self) -> View {
+    let view = View::new_with_buffer(&self.source_view.buffer);
+    view.has_focus();
+    view.grab_focus();
+    view.set_show_line_numbers(true);
+    view.set_auto_indent(true);
+    view
+  }
+
   pub fn get_code(&self) -> String {
-    self.get_text_from_view(ViewText::GtkViewText(&self.output))
+    self.get_text_from_view(ViewText::ViewSource(&self.get_view_from_sourceview()))
   }
 
   pub fn set_output(&self, text: &str) {
     self.output.get_buffer().unwrap().set_text(text);
   }
 
-  pub fn load(&self, view: &View) -> MutTask {
+  pub fn load(&self) -> MutTask {
     MutTask::new(self.title.get_text().unwrap_or(String::new()),
                  self.command.get_text(),
-                 self.get_text_from_view(ViewText::ViewSource(view)),
-                 Some(self.get_code()),
+                 self.get_code(),
+                 Some(self.get_text_from_view(ViewText::GtkViewText(&self.output))),
                  self.language_chooser.chooser.combo.get_active_id())
   }
 
