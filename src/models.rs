@@ -85,7 +85,25 @@ impl MutServer {
                   }
     }
 
+    pub fn update(&self, conn: &SqliteConnection, id: i32) {
+        use schema::servers::dsl::{servers, user, domain_name};
+        match update(servers.find(id))
+                  .set((user.eq(&self.user), domain_name.eq(&self.domain_name)))
+                  .execute(conn) {
+                    Ok(result) => println!("{}", result),
+                    Err(error) => println!("{}", error)
+                  }
+    }
+
     pub fn find(conn: &SqliteConnection, id: i32) -> Result<Server, result::Error> {
         servers::table.find(id).first::<Server>(conn)
+    }
+
+    pub fn save(&self, conn: &SqliteConnection, id: i32) {
+        if id > 0 {
+            self.update(conn, id);
+        } else {
+            self.create(conn);
+        }
     }
 }
