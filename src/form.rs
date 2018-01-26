@@ -63,6 +63,14 @@ impl Form {
     self.language_chooser.chooser.combo.set_active_id(Some(task.language.unwrap().as_str()));
   }
 
+  pub fn clear(&self) {
+    self.title.set_text("");
+    self.command.set_text("");
+    self.source_view.buffer.set_text("");
+    self.set_output("");
+    self.language_chooser.chooser.combo.set_active_id(Some("null"));
+  }
+
   // waiting for https://github.com/rust-lang/rfcs/pull/2175
   fn get_text_from_view(&self, view_text: ViewText) -> String {
     if let ViewText::ViewSource(view) = view_text {

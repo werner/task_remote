@@ -47,6 +47,7 @@ impl TaskChooser {
                     if let Ok(task) = MutTask::find(&connection, id_db) {
                         form.set_values(task);
                     } else {
+                        form.clear();
                         println!("Not Found");
                     }
                 }
