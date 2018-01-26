@@ -104,7 +104,9 @@ fn build_ui(application: &Application) {
             match ssh.connect() {
                 Ok(sess) => {
                     let file_name = ssh.upload_code(&sess, &form.get_code());
-                    let output = ssh.execute(&sess, &format!("{} /tmp/{}", &form.command.get_text().unwrap(), file_name));
+                    let command = &form.command.get_text().unwrap();
+                    let to_execute = command.replace("$CODE", &format!("/tmp/{}", file_name));
+                    let output = ssh.execute(&sess, &to_execute);
                     form.set_output(&output);
                 },
                 Err(error) => println!("{}", error)
