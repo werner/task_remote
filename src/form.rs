@@ -1,22 +1,22 @@
 use gtk::*;
 
-use source_view::{SourceView};
+use source_view::SourceView;
 use sourceview::{View, ViewExt};
-use language_chooser::{LanguageChooser};
-use models::{Task, MutTask};
+use language_chooser::LanguageChooser;
+use models::{MutTask, Task};
 
 enum ViewText<'a> {
   ViewSource(&'a View),
-  GtkViewText(&'a TextView)
+  GtkViewText(&'a TextView),
 }
 
 #[derive(Clone)]
 pub struct Form {
-    pub title: Entry,
-    pub command: Entry,
-    pub output: TextView,
-    pub source_view: SourceView,
-    pub language_chooser: LanguageChooser
+  pub title: Entry,
+  pub command: Entry,
+  pub output: TextView,
+  pub source_view: SourceView,
+  pub language_chooser: LanguageChooser,
 }
 
 impl Form {
@@ -26,7 +26,7 @@ impl Form {
       command: Entry::new(),
       output: TextView::new(),
       source_view: SourceView::new(),
-      language_chooser: LanguageChooser::new()
+      language_chooser: LanguageChooser::new(),
     }
   }
 
@@ -48,19 +48,27 @@ impl Form {
   }
 
   pub fn load(&self) -> MutTask {
-    MutTask::new(self.title.get_text().unwrap_or(String::new()),
-                 self.command.get_text(),
-                 self.get_code(),
-                 Some(self.get_text_from_view(ViewText::GtkViewText(&self.output))),
-                 self.language_chooser.chooser.combo.get_active_id())
+    MutTask::new(
+      self.title.get_text().unwrap_or(String::new()),
+      self.command.get_text(),
+      self.get_code(),
+      Some(self.get_text_from_view(ViewText::GtkViewText(&self.output))),
+      self.language_chooser.chooser.combo.get_active_id(),
+    )
   }
 
   pub fn set_values(&self, task: Task) {
     self.title.set_text(&task.title);
-    self.command.set_text(&task.command.unwrap_or(String::new()));
+    self
+      .command
+      .set_text(&task.command.unwrap_or(String::new()));
     self.source_view.buffer.set_text(&task.code);
     self.set_output(&task.output.unwrap_or(String::new()));
-    self.language_chooser.chooser.combo.set_active_id(Some(task.language.unwrap().as_str()));
+    self
+      .language_chooser
+      .chooser
+      .combo
+      .set_active_id(Some(task.language.unwrap().as_str()));
   }
 
   pub fn clear(&self) {
@@ -68,19 +76,35 @@ impl Form {
     self.command.set_text("");
     self.source_view.buffer.set_text("");
     self.set_output("");
-    self.language_chooser.chooser.combo.set_active_id(Some("null"));
+    self
+      .language_chooser
+      .chooser
+      .combo
+      .set_active_id(Some("null"));
   }
 
   // waiting for https://github.com/rust-lang/rfcs/pull/2175
   fn get_text_from_view(&self, view_text: ViewText) -> String {
     if let ViewText::ViewSource(view) = view_text {
-      view.get_buffer().unwrap().get_text(&view.get_buffer().unwrap().get_start_iter(),
-                                          &view.get_buffer().unwrap().get_end_iter(),
-                                          true).unwrap_or(String::new())
+      view
+        .get_buffer()
+        .unwrap()
+        .get_text(
+          &view.get_buffer().unwrap().get_start_iter(),
+          &view.get_buffer().unwrap().get_end_iter(),
+          true,
+        )
+        .unwrap_or(String::new())
     } else if let ViewText::GtkViewText(view) = view_text {
-      view.get_buffer().unwrap().get_text(&view.get_buffer().unwrap().get_start_iter(),
-                                          &view.get_buffer().unwrap().get_end_iter(),
-                                          true).unwrap_or(String::new())
+      view
+        .get_buffer()
+        .unwrap()
+        .get_text(
+          &view.get_buffer().unwrap().get_start_iter(),
+          &view.get_buffer().unwrap().get_end_iter(),
+          true,
+        )
+        .unwrap_or(String::new())
     } else {
       panic!("Wut")
     }

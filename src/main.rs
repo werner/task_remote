@@ -68,7 +68,7 @@ fn build_ui(application: &Application) {
     let label = Label::new_with_mnemonic(Some("Output"));
     label.set_mnemonic_widget(Some(&form.output));
     vbox_scripts.pack_start(&label, false, false, 1);
-    vbox_scripts.pack_start(&form.output, true, true, 1);
+    vbox_scripts.pack_start(&form.output, false, false, 1);
 
     hbox.pack_start(&vbox_scripts, true, true, 1);
 
