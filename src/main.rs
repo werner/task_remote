@@ -107,6 +107,7 @@ fn build_ui(application: &Application) {
                     let command = &form.command.get_text().unwrap();
                     let to_execute = command.replace("$CODE", &format!("/tmp/{}", file_name));
                     let output = ssh.execute(&sess, &to_execute);
+                    ssh.execute(&sess, &format!("rm /tmp/{}", file_name));
                     form.set_output(&output);
                 },
                 Err(error) => println!("{}", error)
