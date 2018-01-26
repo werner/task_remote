@@ -100,9 +100,14 @@ fn build_ui(application: &Application) {
         let connection: SqliteConnection = establish_connection();
         if let Ok(mut_server) = MutServer::find(&connection, server_pack.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap()) {
             let mut ssh = Ssh::new(&mut_server.user, &mut_server.domain_name);
-            let file_name = ssh.upload_code(&form.get_code());
-            let output = ssh.execute(&format!("{} /tmp/{}", &form.command.get_text().unwrap(), file_name));
-            form.set_output(&output);
+            match ssh.connect() {
+                Ok(sess) => {
+                    let file_name = ssh.upload_code(&sess, &form.get_code());
+                    let output = ssh.execute(&sess, &format!("{} /tmp/{}", &form.command.get_text().unwrap(), file_name));
+                    form.set_output(&output);
+                },
+                Err(error) => println!("{}", error)
+            }
         } else {
             println!("Server Not Found");
         }

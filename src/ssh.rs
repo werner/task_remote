@@ -19,7 +19,7 @@ impl<'a> Ssh<'a> {
     }
   }
 
-  fn connect(&mut self) -> Result<Session, String> {
+  pub fn connect(&mut self) -> Result<Session, String> {
     match &self.tcp {
       &Ok(ref tcp) => {
         if let Some(mut sess) = Session::new() {
@@ -34,40 +34,30 @@ impl<'a> Ssh<'a> {
     }
   }
 
-  pub fn execute(&mut self, command: &str) -> String {
-    match self.connect() {
-      Ok(sess) => {
-        match sess.channel_session() {
-          Ok(mut channel) => {
-            if let Err(error) = channel.exec(command) { println!("{}", error) };
-            let mut s = String::new();
-            if let Err(error) = channel.read_to_string(&mut s) { println!("{}", error) };
-            if let Err(error) = channel.wait_close() { println!("{}", error) };
-            format!("{}, exit code: {}", s, channel.exit_status().unwrap())
-          }, Err(error) => error.to_string()
-        }
-      }
-      Err(error) => error
+  pub fn execute(&mut self, sess: &Session, command: &str) -> String {
+    match sess.channel_session() {
+      Ok(mut channel) => {
+        if let Err(error) = channel.exec(command) { println!("{}", error) };
+        let mut s = String::new();
+        if let Err(error) = channel.read_to_string(&mut s) { println!("{}", error) };
+        if let Err(error) = channel.wait_close() { println!("{}", error) };
+        format!("{}, exit code: {}", s, channel.exit_status().unwrap())
+      }, Err(error) => error.to_string()
     }
   }
 
-  pub fn upload_code(&mut self, code: &str) -> String {
-    match self.connect() {
-      Ok(sess) => {
-        let file_name = Uuid::new_v4();
-        let content = code.as_bytes();
-        match sess.scp_send(Path::new(&format!("/tmp/{}", file_name)), 0o644, content.len() as u64, None) {
-          Ok(mut remote_file) => {
-            if let Ok(_) = remote_file.write(content) {
-              file_name.to_string()
-            } else {
-              String::from("Error loading file")
-            }
-          }
-          Err(error) => error.to_string(),
+  pub fn upload_code(&mut self, sess: &Session, code: &str) -> String {
+    let file_name = Uuid::new_v4();
+    let content = code.as_bytes();
+    match sess.scp_send(Path::new(&format!("/tmp/{}", file_name)), 0o644, content.len() as u64, None) {
+      Ok(mut remote_file) => {
+        if let Ok(_) = remote_file.write(content) {
+          file_name.to_string()
+        } else {
+          String::from("Error loading file")
         }
       }
-      Err(error) => error,
+      Err(error) => error.to_string(),
     }
   }
 
