@@ -44,8 +44,11 @@ impl TaskChooser {
             if let Some(string_id) = combo.get_active_id() {
                 if let Ok(id_db) = string_id.parse::<i32>() {
                     let connection: SqliteConnection = establish_connection();
-                    let task = MutTask::find(&connection, id_db);
-                    form.set_values(task);
+                    if let Ok(task) = MutTask::find(&connection, id_db) {
+                        form.set_values(task);
+                    } else {
+                        println!("Not Found");
+                    }
                 }
             }
         });

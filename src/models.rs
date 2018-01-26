@@ -59,8 +59,8 @@ impl MutTask {
                   }
     }
 
-    pub fn find(conn: &SqliteConnection, id: i32) -> Task {
-        tasks::table.find(id).first::<Task>(conn).expect("Not found")
+    pub fn find(conn: &SqliteConnection, id: i32) -> Result<Task, result::Error> {
+        tasks::table.find(id).first::<Task>(conn)
     }
 
     pub fn save(&self, conn: &SqliteConnection, id: i32) {
