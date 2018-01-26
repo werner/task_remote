@@ -33,7 +33,7 @@ impl MutTask {
         }
     }
 
-    pub fn create(&self, conn: &SqliteConnection) {
+    fn create(&self, conn: &SqliteConnection) {
         match insert_into(tasks::table)
                 .values(self)
                 .execute(conn) {
@@ -42,8 +42,33 @@ impl MutTask {
                 }
     }
 
+    fn update(&self, conn: &SqliteConnection, id: i32) {
+        use schema::tasks::dsl::{tasks, title, command, code, output, language};
+        let _command = self.command.clone();
+        let _output = self.output.clone();
+        let _language = self.language.clone();
+        match update(tasks.find(id))
+                  .set((title.eq(&self.title),
+                        command.eq(_command.unwrap_or(String::new())),
+                        code.eq(&self.code),
+                        output.eq(_output.unwrap_or(String::new())),
+                        language.eq(_language.unwrap_or(String::new()))))
+                  .execute(conn) {
+                    Ok(result) => println!("{}", result),
+                    Err(error) => println!("{}", error)
+                  }
+    }
+
     pub fn find(conn: &SqliteConnection, id: i32) -> Task {
         tasks::table.find(id).first::<Task>(conn).expect("Not found")
+    }
+
+    pub fn save(&self, conn: &SqliteConnection, id: i32) {
+        if id > 0 {
+            self.update(conn, id);
+        } else {
+            self.create(conn);
+        }
     }
 }
 
@@ -85,7 +110,7 @@ impl MutServer {
                   }
     }
 
-    pub fn update(&self, conn: &SqliteConnection, id: i32) {
+    fn update(&self, conn: &SqliteConnection, id: i32) {
         use schema::servers::dsl::{servers, user, domain_name};
         match update(servers.find(id))
                   .set((user.eq(&self.user), domain_name.eq(&self.domain_name)))

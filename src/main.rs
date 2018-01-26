@@ -82,10 +82,11 @@ fn build_ui(application: &Application) {
     form.language_chooser.connect_change(&form);
 
     let save_button: Button = Button::new_with_label("Save");
+    let task_choose2 = task_chooser.clone();
     save_button.connect_clicked(clone!(form => move |_| {
         let task = form.load();
         let connection: SqliteConnection = establish_connection();
-        task.create(&connection);
+        task.save(&connection, task_choose2.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap());
     }));
 
     vbox_options.pack_start(&save_button, false, false, 5);

@@ -8,6 +8,7 @@ use db_connection::*;
 use models::{MutTask};
 use form::{Form};
 
+#[derive(Clone)]
 pub struct TaskChooser {
     pub chooser: Chooser
 }
@@ -27,7 +28,7 @@ impl TaskChooser {
     pub fn fill(&self) {
         let connection: SqliteConnection = establish_connection();
 
-        self.chooser.add_text_row(&self.chooser.model_store, "null", "Choose a Task");
+        self.chooser.add_text_row(&self.chooser.model_store, "-1", "Choose a Task");
         self.chooser.add_text_row(&self.chooser.model_store, "0", "New Task");
         let results = tasks.load::<Task>(&connection).expect("Error loading tasks");
         for task in results {
