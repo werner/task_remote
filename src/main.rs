@@ -24,7 +24,6 @@ mod ssh;
 use task_chooser::{TaskChooser};
 use gio::prelude::*;
 use gtk::*;
-use sourceview::{View, ViewExt};
 use diesel::prelude::*;
 use db_connection::*;
 use form::*;

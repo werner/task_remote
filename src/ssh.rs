@@ -55,9 +55,10 @@ impl<'a> Ssh<'a> {
     match self.connect() {
       Ok(sess) => {
         let file_name = Uuid::new_v4();
-        match sess.scp_send(Path::new(&format!("/tmp/{}", file_name)), 0o644, 10, None) {
+        let content = code.as_bytes();
+        match sess.scp_send(Path::new(&format!("/tmp/{}", file_name)), 0o644, content.len() as u64, None) {
           Ok(mut remote_file) => {
-            if let Ok(_) = remote_file.write(code.as_bytes()) {
+            if let Ok(_) = remote_file.write(content) {
               file_name.to_string()
             } else {
               String::from("Error loading file")
