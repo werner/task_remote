@@ -87,6 +87,7 @@ fn build_ui(application: &Application) {
         let task = form.load();
         let connection: SqliteConnection = establish_connection();
         task.save(&connection, task_choose2.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap());
+        task_choose2.fill();
     }));
 
     vbox_options.pack_start(&save_button, false, false, 5);

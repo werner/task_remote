@@ -28,6 +28,7 @@ impl TaskChooser {
     pub fn fill(&self) {
         let connection: SqliteConnection = establish_connection();
 
+        self.chooser.model_store.clear();
         self.chooser.add_text_row(&self.chooser.model_store, "-1", "Choose a Task");
         self.chooser.add_text_row(&self.chooser.model_store, "0", "New Task");
         let results = tasks.load::<Task>(&connection).expect("Error loading tasks");
