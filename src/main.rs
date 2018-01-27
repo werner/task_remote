@@ -29,7 +29,7 @@ use db_connection::*;
 use form::*;
 use server_chooser::{ServerChooser};
 use ssh::{Ssh};
-use models::{MutServer};
+use models::{MutServer, MutTask};
 
 use std::env::args;
 
@@ -72,7 +72,7 @@ fn build_ui(application: &Application) {
 
     hbox.pack_start(&vbox_scripts, true, true, 1);
 
-    let vbox_options = Box::new(Orientation::Vertical, 4);
+    let vbox_options = Box::new(Orientation::Vertical, 5);
 
     form.language_chooser.chooser.prepare();
     form.language_chooser.fill();
@@ -91,6 +91,15 @@ fn build_ui(application: &Application) {
     }));
 
     vbox_options.pack_start(&save_button, false, false, 5);
+
+    let delete_button: Button = Button::new_with_label("Delete");
+    let task_choose3 = task_chooser.clone();
+    delete_button.connect_clicked(move |_| {
+        let connection: SqliteConnection = establish_connection();
+        MutTask::destroy(&connection, task_choose3.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap());
+        task_choose3.fill();
+    });
+    vbox_options.pack_start(&delete_button, false, false, 5);
 
     let server_pack: ServerChooser = ServerChooser::new();
     server_pack.chooser.prepare();

@@ -59,6 +59,13 @@ impl MutTask {
                   }
     }
 
+    pub fn destroy(conn: &SqliteConnection, id: i32) {
+        match delete(tasks::table.find(id)).execute(conn) {
+            Ok(result) => println!("{}", result),
+            Err(error) => println!("{}", error)
+        }
+    }
+
     pub fn find(conn: &SqliteConnection, id: i32) -> Result<Task, result::Error> {
         tasks::table.find(id).first::<Task>(conn)
     }
