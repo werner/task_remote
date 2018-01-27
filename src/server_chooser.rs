@@ -7,9 +7,11 @@ use schema::servers::dsl::*;
 use db_connection::*;
 use models::{MutServer};
 
+#[derive(Clone)]
 pub struct ServerChooser {
     pub chooser: Chooser,
-    pub add_server_btn: Button
+    pub add_server_btn: Button,
+    pub delete_server_btn: Button
 }
 
 impl ServerChooser {
@@ -21,13 +23,15 @@ impl ServerChooser {
                   combo: ComboBox::new(),
                   model_store: ListStore::new(&[Type::String, Type::String]),
               },
-            add_server_btn: Button::new_with_label("+")
+            add_server_btn: Button::new_with_label("+"),
+            delete_server_btn: Button::new_with_label("x")
         }
     }
 
     pub fn widget(&self, window: &ApplicationWindow) -> Box {
       let hbox = Box::new(Orientation::Horizontal, 2);
 
+      let this_save = self.clone();
       self.add_server_btn.connect_clicked(clone!(window => move |_| {
         let dialog = Dialog::new_with_buttons(Some("Add a Server"), Some(&window), DialogFlags::empty(), &[("Save", 1), ("Cancel", 2)]);
         let content = dialog.get_content_area();
@@ -59,16 +63,27 @@ impl ServerChooser {
           server.create(&connection);
         }
 
+        this_save.fill();
         dialog.destroy();
       }));
+
+      let this_delete = self.clone();
+      self.delete_server_btn.connect_clicked(move |_| {
+        let connection: SqliteConnection = establish_connection();
+        let id_db = this_delete.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap();
+        MutServer::destroy(&connection, id_db);
+        this_delete.fill();
+      });
       hbox.pack_start(&self.chooser.combo, true, true, 1);
       hbox.pack_start(&self.add_server_btn, false, false, 1);
+      hbox.pack_start(&self.delete_server_btn, false, false, 1);
       hbox
     }
 
     pub fn fill(&self) {
         let connection: SqliteConnection = establish_connection();
 
+        self.chooser.model_store.clear();
         self.chooser.add_text_row(&self.chooser.model_store, "0", "Choose a Server");
         let results = servers.load::<Server>(&connection).expect("Error loading servers");
         for server in results {

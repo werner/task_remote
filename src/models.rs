@@ -127,6 +127,13 @@ impl MutServer {
                   }
     }
 
+    pub fn destroy(conn: &SqliteConnection, id: i32) {
+        match delete(servers::table.find(id)).execute(conn) {
+            Ok(result) => println!("{}", result),
+            Err(error) => println!("{}", error)
+        }
+    }
+    
     pub fn find(conn: &SqliteConnection, id: i32) -> Result<Server, result::Error> {
         servers::table.find(id).first::<Server>(conn)
     }
