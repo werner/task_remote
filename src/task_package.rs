@@ -9,6 +9,8 @@ use models::{MutTask};
 use form::{Form};
 use server_package::{ServerPackage};
 use ssh::{Ssh};
+use std::thread;
+use std::sync::mpsc;
 
 #[derive(Clone)]
 pub struct TaskPackage {
@@ -66,22 +68,33 @@ impl TaskPackage {
 
         let server_pack_clone = server_pack.clone();
         self.run_btn.connect_clicked(clone!(form => move |_| {
-            let connection: SqliteConnection = establish_connection();
-            if let Ok(mut_server) = MutServer::find(&connection, server_pack_clone.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap()) {
-                let mut ssh = Ssh::new(&mut_server.user, &mut_server.domain_name);
-                match ssh.connect() {
-                    Ok(sess) => {
-                        let file_name = ssh.upload_code(&sess, &form.get_code());
-                        let command_to_run = &form.command.get_text().unwrap();
-                        let code_to_execute = command_to_run.replace("$CODE", &format!("/tmp/{}", file_name));
-                        let string_output = ssh.execute(&sess, &code_to_execute);
-                        ssh.execute(&sess, &format!("rm /tmp/{}", file_name));
-                        form.set_output(&string_output);
-                    },
-                    Err(error) => println!("{}", error)
+
+            let code_to_handle = form.get_code();
+            let command_to_run = form.command.get_text().unwrap();
+            let server_id = server_pack_clone.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap();
+            let (tx, rx) = mpsc::channel();
+            thread::spawn(move || {
+                let connection: SqliteConnection = establish_connection();
+                if let Ok(mut_server) = MutServer::find(&connection, server_id) {
+                    let mut ssh = Ssh::new(&mut_server.user, &mut_server.domain_name);
+                    match ssh.connect() {
+                        Ok(sess) => {
+                            let file_name = ssh.upload_code(&sess, &code_to_handle);
+                            let code_to_execute = &command_to_run.replace("$CODE", &format!("/tmp/{}", file_name));
+                            let string_output = ssh.execute(&sess, &code_to_execute);
+                            ssh.execute(&sess, &format!("rm /tmp/{}", file_name));
+                            tx.send(string_output).unwrap();
+                        },
+                        Err(error) => println!("{}", error)
+                    }
+                } else {
+                    println!("Server Not Found");
                 }
-            } else {
-                println!("Server Not Found");
+            });
+
+            match rx.recv() {
+                Ok(str_output) => form.set_output(&str_output),
+                Err(error) => form.set_output(&error.to_string())
             }
         }));
 
