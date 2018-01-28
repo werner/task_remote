@@ -58,12 +58,12 @@ impl ServerPackage {
         };
 
         if let 1 = response {
-          let connection: SqliteConnection = establish_connection();
-          let server = MutServer::new(entry_user.get_text().unwrap_or(String::new()), entry_server_name.get_text().unwrap_or(String::new()));
-          server.create(&connection);
+            let connection: SqliteConnection = establish_connection();
+            let server = MutServer::new(entry_user.get_text().unwrap_or(String::new()), entry_server_name.get_text().unwrap_or(String::new()));
+            server.create(&connection);
+            this_save.fill();
         }
 
-        this_save.fill();
         dialog.destroy();
       }));
 

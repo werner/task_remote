@@ -33,7 +33,7 @@ impl TaskPackage {
         }
     }
 
-    pub fn prepare_buttons(&self, form: &Form, server_pack: &ServerPackage) {
+    pub fn prepare_buttons(&self, window: &ApplicationWindow, form: &Form, server_pack: &ServerPackage) {
         let this_for_save = self.clone();
         self.save_btn.connect_clicked(clone!(form => move |_| {
             let task = form.load();
@@ -43,11 +43,26 @@ impl TaskPackage {
         }));
 
         let this_for_delete = self.clone();
-        self.delete_btn.connect_clicked(move |_| {
-            let connection: SqliteConnection = establish_connection();
-            MutTask::destroy(&connection, this_for_delete.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap());
-            this_for_delete.fill();
-        });
+        self.delete_btn.connect_clicked(clone!(window => move |_| {
+            let dialog = Dialog::new_with_buttons(Some("Add a Server"), Some(&window), DialogFlags::empty(), &[("Yes", 1), ("No", 2)]);
+            let content = dialog.get_content_area();
+
+            let label = Label::new_with_mnemonic(Some("Are you sure?"));
+
+            content.pack_start(&label, false, false, 1);
+
+            let response = {
+                dialog.show_all();
+                dialog.run()
+            };
+
+            if let 1 = response {
+                let connection: SqliteConnection = establish_connection();
+                MutTask::destroy(&connection, this_for_delete.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap());
+                this_for_delete.fill();
+            };
+            dialog.destroy();
+        }));
 
         let server_pack_clone = server_pack.clone();
         self.run_btn.connect_clicked(clone!(form => move |_| {

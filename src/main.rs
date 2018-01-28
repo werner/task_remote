@@ -82,7 +82,7 @@ fn build_ui(application: &Application) {
     server_pack.fill();
     vbox_options.pack_start(&server_pack.widget(&window), false, false, 5);
 
-    task_package.prepare_buttons(&form, &server_pack);
+    task_package.prepare_buttons(&window, &form, &server_pack);
     vbox_options.pack_start(&task_package.save_btn, false, false, 5);
     vbox_options.pack_start(&task_package.delete_btn, false, false, 5);
     vbox_options.pack_start(&task_package.run_btn, false, false, 5);
