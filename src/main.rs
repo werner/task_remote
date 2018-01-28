@@ -3,6 +3,8 @@ extern crate gtk;
 extern crate sourceview;
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
 extern crate dotenv;
 extern crate ssh2;
 extern crate uuid;
@@ -26,10 +28,17 @@ use gio::prelude::*;
 use gtk::*;
 use form::*;
 use server_package::{ServerPackage};
+use db_connection::*;
 
 use std::env::args;
+ 
+embed_migrations!();
 
 fn build_ui(application: &Application) {
+
+    let connection = establish_connection();
+    embedded_migrations::run(&connection).unwrap();
+
     let window = ApplicationWindow::new(application);
 
     window.set_title("Task Remote");
