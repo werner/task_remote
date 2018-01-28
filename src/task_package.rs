@@ -64,25 +64,30 @@ impl TaskPackage {
             dialog.destroy();
         }));
 
-        let server_pack_clone = server_pack.clone();
+        let server_pack_cloned = server_pack.clone();
         self.run_btn.connect_clicked(clone!(form => move |_| {
-            let connection: SqliteConnection = establish_connection();
-            if let Ok(mut_server) = MutServer::find(&connection, server_pack_clone.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap()) {
-                let mut ssh = Ssh::new(&mut_server.user, &mut_server.domain_name);
-                match ssh.connect() {
-                    Ok(sess) => {
-                        let file_name = ssh.upload_code(&sess, &form.get_code());
-                        let command_to_run = &form.command.get_text().unwrap();
-                        let code_to_execute = command_to_run.replace("$CODE", &format!("/tmp/{}", file_name));
-                        let string_output = ssh.execute(&sess, &code_to_execute);
-                        ssh.execute(&sess, &format!("rm /tmp/{}", file_name));
-                        form.set_output(&string_output);
-                    },
-                    Err(error) => println!("{}", error)
+            let server_pack_to_run = server_pack_cloned.clone();
+            idle_add(clone!(form => move || {
+                let connection: SqliteConnection = establish_connection();
+                if let Ok(mut_server) = MutServer::find(&connection, server_pack_to_run.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap()) {
+                    let mut ssh = Ssh::new(&mut_server.user, &mut_server.domain_name);
+                    match ssh.connect() {
+                        Ok(sess) => {
+                            let file_name = ssh.upload_code(&sess, &form.get_code());
+                            let command_to_run = &form.command.get_text().unwrap();
+                            let code_to_execute = command_to_run.replace("$CODE", &format!("/tmp/{}", file_name));
+                            let string_output = ssh.execute(&sess, &code_to_execute);
+                            ssh.execute(&sess, &format!("rm /tmp/{}", file_name));
+                            form.set_output(&string_output);
+                        },
+                        Err(error) => println!("{}", error)
+                    }
+                } else {
+                    println!("Server Not Found");
                 }
-            } else {
-                println!("Server Not Found");
-            }
+
+                Continue(false)
+            }));
         }));
 
     }
