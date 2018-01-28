@@ -8,16 +8,16 @@ use db_connection::*;
 use models::{MutServer};
 
 #[derive(Clone)]
-pub struct ServerChooser {
+pub struct ServerPackage {
     pub chooser: Chooser,
     pub add_server_btn: Button,
     pub delete_server_btn: Button
 }
 
-impl ServerChooser {
+impl ServerPackage {
 
-    pub fn new() -> ServerChooser {
-        ServerChooser {
+    pub fn new() -> ServerPackage {
+        ServerPackage {
             chooser:
               Chooser {
                   combo: ComboBox::new(),

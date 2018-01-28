@@ -12,7 +12,7 @@ mod utils;
 
 mod language_chooser;
 mod task_chooser;
-mod server_chooser;
+mod server_package;
 mod source_view;
 mod chooser;
 mod models;
@@ -27,7 +27,7 @@ use gtk::*;
 use diesel::prelude::*;
 use db_connection::*;
 use form::*;
-use server_chooser::{ServerChooser};
+use server_package::{ServerPackage};
 use ssh::{Ssh};
 use models::{MutServer, MutTask};
 
@@ -101,7 +101,7 @@ fn build_ui(application: &Application) {
     });
     vbox_options.pack_start(&delete_button, false, false, 5);
 
-    let server_pack: ServerChooser = ServerChooser::new();
+    let server_pack: ServerPackage = ServerPackage::new();
     server_pack.chooser.prepare();
     server_pack.fill();
     vbox_options.pack_start(&server_pack.widget(&window), false, false, 5);
