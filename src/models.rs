@@ -28,7 +28,6 @@ impl MutTask {
             title: title,
             command: command,
             code: code,
-            output: output,
             language: language
         }
     }
@@ -51,7 +50,6 @@ impl MutTask {
                   .set((title.eq(&self.title),
                         command.eq(_command.unwrap_or(String::new())),
                         code.eq(&self.code),
-                        output.eq(_output.unwrap_or(String::new())),
                         language.eq(_language.unwrap_or(String::new()))))
                   .execute(conn) {
                     Ok(result) => println!("{}", result),
