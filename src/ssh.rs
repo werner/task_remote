@@ -40,7 +40,6 @@ impl<'a> Ssh<'a> {
         if let Err(error) = channel.exec(command) { println!("{}", error) };
         let mut s = String::new();
         if let Err(error) = channel.read_to_string(&mut s) { println!("{}", error) };
-        if let Err(error) = channel.wait_close() { println!("{}", error) };
         format!("{}, exit code: {}", s, channel.exit_status().unwrap())
       }, Err(error) => error.to_string()
     }
