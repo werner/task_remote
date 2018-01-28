@@ -11,7 +11,7 @@ extern crate uuid;
 mod utils;
 
 mod language_chooser;
-mod task_chooser;
+mod task_package;
 mod server_package;
 mod source_view;
 mod chooser;
@@ -21,15 +21,11 @@ mod db_connection;
 mod form;
 mod ssh;
 
-use task_chooser::{TaskChooser};
+use task_package::{TaskPackage};
 use gio::prelude::*;
 use gtk::*;
-use diesel::prelude::*;
-use db_connection::*;
 use form::*;
 use server_package::{ServerPackage};
-use ssh::{Ssh};
-use models::{MutServer, MutTask};
 
 use std::env::args;
 
@@ -49,11 +45,11 @@ fn build_ui(application: &Application) {
     let hbox = Box::new(Orientation::Horizontal, 2);
     let vbox_scripts = Box::new(Orientation::Vertical, 6);
 
-    let task_chooser: TaskChooser = TaskChooser::new();
+    let task_package: TaskPackage = TaskPackage::new();
 
-    task_chooser.chooser.prepare();
-    task_chooser.fill();
-    vbox_scripts.pack_start(&task_chooser.chooser.combo, false, false, 5);
+    task_package.chooser.prepare();
+    task_package.fill();
+    vbox_scripts.pack_start(&task_package.chooser.combo, false, false, 5);
 
     let form = Form::new();
 
@@ -81,58 +77,21 @@ fn build_ui(application: &Application) {
 
     form.language_chooser.connect_change(&form);
 
-    let save_button: Button = Button::new_with_label("Save");
-    let task_choose2 = task_chooser.clone();
-    save_button.connect_clicked(clone!(form => move |_| {
-        let task = form.load();
-        let connection: SqliteConnection = establish_connection();
-        task.save(&connection, task_choose2.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap());
-        task_choose2.fill();
-    }));
-
-    vbox_options.pack_start(&save_button, false, false, 5);
-
-    let delete_button: Button = Button::new_with_label("Delete");
-    let task_choose3 = task_chooser.clone();
-    delete_button.connect_clicked(move |_| {
-        let connection: SqliteConnection = establish_connection();
-        MutTask::destroy(&connection, task_choose3.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap());
-        task_choose3.fill();
-    });
-    vbox_options.pack_start(&delete_button, false, false, 5);
-
     let server_pack: ServerPackage = ServerPackage::new();
     server_pack.chooser.prepare();
     server_pack.fill();
     vbox_options.pack_start(&server_pack.widget(&window), false, false, 5);
 
-    let run_button: Button = Button::new_with_label("Execute");
-    run_button.connect_clicked(clone!(form => move |_| {
-        let connection: SqliteConnection = establish_connection();
-        if let Ok(mut_server) = MutServer::find(&connection, server_pack.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap()) {
-            let mut ssh = Ssh::new(&mut_server.user, &mut_server.domain_name);
-            match ssh.connect() {
-                Ok(sess) => {
-                    let file_name = ssh.upload_code(&sess, &form.get_code());
-                    let command = &form.command.get_text().unwrap();
-                    let to_execute = command.replace("$CODE", &format!("/tmp/{}", file_name));
-                    let output = ssh.execute(&sess, &to_execute);
-                    ssh.execute(&sess, &format!("rm /tmp/{}", file_name));
-                    form.set_output(&output);
-                },
-                Err(error) => println!("{}", error)
-            }
-        } else {
-            println!("Server Not Found");
-        }
-    }));
-    vbox_options.pack_start(&run_button, false, false, 5);
+    task_package.prepare_buttons(&form, &server_pack);
+    vbox_options.pack_start(&task_package.save_btn, false, false, 5);
+    vbox_options.pack_start(&task_package.delete_btn, false, false, 5);
+    vbox_options.pack_start(&task_package.run_btn, false, false, 5);
 
     hbox.pack_start(&vbox_options, true, true, 1);
 
     window.add(&hbox);
 
-    task_chooser.connect_change(form);
+    task_package.connect_change(form);
     window.show_all();
 }
 
