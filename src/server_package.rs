@@ -68,12 +68,28 @@ impl ServerPackage {
       }));
 
       let this_delete = self.clone();
-      self.delete_server_btn.connect_clicked(move |_| {
-        let connection: SqliteConnection = establish_connection();
-        let id_db = this_delete.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap();
-        MutServer::destroy(&connection, id_db);
-        this_delete.fill();
-      });
+      self.delete_server_btn.connect_clicked(clone!(window => move |_| {
+        let dialog = Dialog::new_with_buttons(Some("Add a Server"), Some(&window), DialogFlags::empty(), &[("Yes", 1), ("No", 2)]);
+        let content = dialog.get_content_area();
+
+        let label = Label::new_with_mnemonic(Some("Are you sure?"));
+
+        content.pack_start(&label, false, false, 1);
+
+        let response = {
+          dialog.show_all();
+          dialog.run()
+        };
+
+        if let 1 = response {
+            let connection: SqliteConnection = establish_connection();
+            let id_db = this_delete.chooser.combo.get_active_id().unwrap().parse::<i32>().unwrap();
+            MutServer::destroy(&connection, id_db);
+            this_delete.fill();
+        }
+
+        dialog.destroy();
+      }));
       hbox.pack_start(&self.chooser.combo, true, true, 1);
       hbox.pack_start(&self.add_server_btn, false, false, 1);
       hbox.pack_start(&self.delete_server_btn, false, false, 1);
