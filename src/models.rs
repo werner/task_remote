@@ -28,6 +28,7 @@ impl MutTask {
             title: title,
             command: command,
             code: code,
+            output: output,
             language: language
         }
     }
@@ -42,7 +43,7 @@ impl MutTask {
     }
 
     fn update(&self, conn: &SqliteConnection, id: i32) {
-        use schema::tasks::dsl::{tasks, title, command, code, output, language};
+        use schema::tasks::dsl::{tasks, title, command, code, language};
         let _command = self.command.clone();
         let _output = self.output.clone();
         let _language = self.language.clone();
