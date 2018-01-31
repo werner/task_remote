@@ -8,6 +8,10 @@ extern crate diesel_migrations;
 extern crate dotenv;
 extern crate ssh2;
 extern crate uuid;
+#[macro_use]
+extern crate relm;
+#[macro_use]
+extern crate relm_derive;
 
 #[macro_use]
 mod utils;
@@ -23,16 +27,79 @@ mod db_connection;
 mod form;
 mod ssh;
 
-use task_package::{TaskPackage};
-use gio::prelude::*;
+use std::env::args;
 use gtk::*;
+use gio::prelude::*;
+use relm::{Relm, Widget, Update};
+
+use task_package::{TaskPackage};
 use form::*;
 use server_package::{ServerPackage};
 use db_connection::*;
-
-use std::env::args;
  
 embed_migrations!();
+
+struct MainModel { }
+
+#[derive(Msg)]
+enum MainMsg {
+    Quit
+}
+
+struct MainWindows {
+    model: MainModel,
+    window: Window
+}
+
+impl Update for MainWindows {
+    type Model = MainModel;
+    type ModelParam = ();
+    type Msg = MainMsg;
+
+    fn model(_: &Relm<Self>, _:()) -> MainModel {
+        MainModel { }
+    }
+
+    fn update(&mut self, event: MainMsg) {
+        match event {
+            MainMsg::Quit => gtk::main_quit()
+        }
+    }
+
+}
+
+impl Widget for MainWindows {
+    type Root = Window;
+
+    fn root(&self) -> Self::Root {
+        self.window.clone()
+    }
+
+    fn view(relm: &Relm<Self>, model: Self::Model) -> Self {
+        let window = Window::new(WindowType::Toplevel);
+
+        window.set_title("Task Remote");
+        window.set_border_width(10);
+        window.set_position(WindowPosition::Center);
+        window.set_default_size(800, 600);
+
+        connect!(relm, window, connect_delete_event(_, _), return (Some(MainMsg::Quit), Inhibit(false)));
+
+        window.show_all();
+
+        MainWindows {
+            model,
+            window: window
+        }
+    }
+}
+
+fn main() {
+    let connection = establish_connection();
+    embedded_migrations::run(&connection).unwrap();
+
+    MainWindows::run(()).unwrap();
+}
 
 fn build_ui(application: &Application) {
 
@@ -40,16 +107,6 @@ fn build_ui(application: &Application) {
     embedded_migrations::run(&connection).unwrap();
 
     let window = ApplicationWindow::new(application);
-
-    window.set_title("Task Remote");
-    window.set_border_width(10);
-    window.set_position(WindowPosition::Center);
-    window.set_default_size(800, 600);
-
-    window.connect_delete_event(clone!(window => move |_, _| {
-        window.destroy();
-        Inhibit(false)
-    }));
 
     let hbox = Box::new(Orientation::Horizontal, 2);
     let vbox_scripts = Box::new(Orientation::Vertical, 6);
@@ -102,17 +159,4 @@ fn build_ui(application: &Application) {
 
     task_package.connect_change(form);
     window.show_all();
-}
-
-fn main() {
-    let application = Application::new("com.task_remote",
-                                       gio::ApplicationFlags::empty())
-                                       .expect("Initialization failed...");
-
-    application.connect_startup(|app| {
-        build_ui(app);
-    });
-    application.connect_activate(|_| {});
-
-    application.run(&args().collect::<Vec<_>>());
 }
