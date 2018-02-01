@@ -37,8 +37,6 @@ use db_connection::*;
  
 embed_migrations!();
 
-struct MainModel { }
-
 #[derive(Msg)]
 enum MainMsg {
     Quit
@@ -49,12 +47,12 @@ struct MainWindows {
 }
 
 impl Update for MainWindows {
-    type Model = MainModel;
+    type Model = ();
     type ModelParam = ();
     type Msg = MainMsg;
 
-    fn model(_: &Relm<Self>, _:()) -> MainModel {
-        MainModel { }
+    fn model(_: &Relm<Self>, _:()) -> () {
+        ()
     }
 
     fn update(&mut self, event: MainMsg) {
@@ -72,7 +70,7 @@ impl Widget for MainWindows {
         self.window.clone()
     }
 
-    fn view(relm: &Relm<Self>, model: Self::Model) -> Self {
+    fn view(relm: &Relm<Self>, _: Self::Model) -> Self {
         let window = Window::new(WindowType::Toplevel);
 
         window.set_title("Task Remote");
@@ -135,7 +133,6 @@ impl Widget for MainWindows {
         window.show_all();
 
         MainWindows {
-            model,
             window: window
         }
     }
