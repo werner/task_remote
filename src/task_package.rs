@@ -33,7 +33,7 @@ impl TaskPackage {
         }
     }
 
-    pub fn prepare_buttons(&self, window: &ApplicationWindow, form: &Form, server_pack: &ServerPackage) {
+    pub fn prepare_buttons(&self, window: &Window, form: &Form, server_pack: &ServerPackage) {
         let this_for_save = self.clone();
         self.save_btn.connect_clicked(clone!(form => move |_| {
             let task = form.load();

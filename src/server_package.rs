@@ -28,7 +28,7 @@ impl ServerPackage {
         }
     }
 
-    pub fn widget(&self, window: &ApplicationWindow) -> Box {
+    pub fn widget(&self, window: &Window) -> Box {
       let hbox = Box::new(Orientation::Horizontal, 2);
 
       let this_save = self.clone();
